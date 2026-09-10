@@ -1,11 +1,5 @@
 # Scoped-Deontic RAG: Legal Document Intelligence Assistant
 
-[![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
-[![Framework-Streamlit](https://img.shields.io/badge/UI-Streamlit-FF4B4B.svg)](https://streamlit.io/)
-[![Database-ChromaDB](https://img.shields.io/badge/Vector%20Store-ChromaDB-purple.svg)](https://www.trychroma.com/)
-[![NLP-spaCy](https://img.shields.io/badge/NLP-spaCy-09A3D5.svg)](https://spacy.io/)
-[![Inference-Ollama](https://img.shields.io/badge/Inference-Ollama%20(Llama%203)-black.svg)](https://ollama.ai/)
-
 This repository contains the complete implementation, evaluation benchmarks, and academic documentation for **Scoped-Deontic RAG**, a structure-aware Retrieval-Augmented Generation framework designed for semi-structured legal agreements.
 
 ---
