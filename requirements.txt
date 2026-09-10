@@ -1,0 +1,11 @@
+spacy
+sentence-transformers
+chromadb
+groq
+jupyter
+streamlit
+pymupdf
+ollama
+requests
+beautifulsoup4
+playwright
