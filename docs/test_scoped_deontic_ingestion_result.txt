@@ -1,0 +1,62 @@
+######################################################################
+  RUNNING SCOPED-DEONTIC INGESTION & CHUNKING TEST SUITE
+######################################################################
+
+======================================================================
+ TEST 1: CLAUSE SPLITTING & BOUNDARY INTEGRITY
+======================================================================
+[*] Input text contained 5 distinct sections/clauses.
+[*] Extracted clauses count: 5
+    Clause [1]: Section 1. Definitions. 'Agreement' refers to this lega... (9 words)
+    Clause [2]: Section 2. Audit Obligations. The operator must provide... (13 words)
+    Clause [3]: Clause 3. Termination Notice. Either party may terminat... (14 words)
+    Clause [4]: 4. Confidentiality. Recipient shall not disclose propri... (11 words)
+    Clause [5]: 5.1 Limitation of Liability. Damages shall not exceed f... (14 words)
+
+[OBSERVATION] Clause Boundary Integrity: PASSED (100%split match)
+
+======================================================================
+ TEST 2: DEONTIC EXTRACTION & CROSS-REFERENCE LINKING
+======================================================================
+Clause ID    | Token Length | Extracted Deontic Spans       | Extracted Links
+---------------------------------------------------------------------------
+Clause 1      | 57           | Obli:2, Proh:1        | None
+Clause 2      | 38           | Obli:1, Perm:1, Cond:1        | Linked Node: 18.2
+Clause 3      | 50           | Obli:1, Cond:1        | None
+Clause 4      | 49           | Perm:2        | Linked Node: 14.1
+Clause 5      | 55           | Obli:2, Cond:4        | Linked Node: 9.0
+Clause 6      | 41           | Obli:2, Perm:1, Proh:1        | Linked Node: 12
+
+----------------------------------------------------------------------
+Deontic Category | Precision    | Recall       | F1-Score    
+----------------------------------------------------------------------
+OBLIGATION      | 1.000        | 1.000        | 1.000      
+PROHIBITION     | 1.000        | 0.667        | 0.800      
+PERMISSION      | 1.000        | 1.000        | 1.000      
+CONDITION       | 0.667        | 1.000        | 0.800      
+----------------------------------------------------------------------
+[OBSERVATION] Macro Deontic F1-Score       : 0.900
+[OBSERVATION] Cross-Reference Resolution Acc: 100.0% (4/4 targets resolved)
+[OBSERVATION] Mean Clause Length            : 48.3 words (Min: 38, Max: 57)
+
+======================================================================
+ TEST 3: CHROMADB SCOPED INGESTION & VECTOR METADATA INTEGRITY
+======================================================================
+[*] Initializing clean ChromaDB instance at temporarypath: /var/folders/49/_8r1r_ts62vg6b5hd468g2r80000gn/T/tmpsq8d3o99
+Loading weights: 100%|█| 103/103 [00:00<00:00, 8720.1
+[*] Processed and indexed 6 structured legal chunks.
+[*] ChromaDB reported record count: 6
+
+[*] Sample Retrieval Verification on Indexed Chunks:
+    Query: 'What happens if an operator denies or obstructs an audit?'
+    Retrieved Document Scope: Audits & Penalties
+    Extracted Prohibitions   : shall not deny or obstruct access to
+    Content Preview          : [Audits & Penalties] Section 20. Audit Access and Denial Penalty. The Operator shall not d...
+
+[OBSERVATION] End-to-end ingestion, schema formatting, and indexing: ALL CHECKS PASSED.
+
+======================================================================
+ FINAL VERIFICATION SUMMARY
+======================================================================
+All ingestion tests completed without errors.
+Ready to paste directly into your research paper methodology and results tables.
