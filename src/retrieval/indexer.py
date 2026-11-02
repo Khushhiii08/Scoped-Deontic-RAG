@@ -1,6 +1,8 @@
 import os
 os.environ["ANONYMIZED_TELEMETRY"] = "False"
 os.environ["CHROMA_TELEMETRY"] = "False"
+os.environ.setdefault("HF_HUB_OFFLINE", "1")
+os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
 import chromadb
 from chromadb.config import Settings
 from sentence_transformers import SentenceTransformer
@@ -11,7 +13,12 @@ chroma_client = chromadb.PersistentClient(
     settings=Settings(anonymized_telemetry=False)
 )
 
-embedder = SentenceTransformer("all-MiniLM-L6-v2")
+try:
+    embedder = SentenceTransformer("all-MiniLM-L6-v2", device="cpu", local_files_only=True)
+except Exception:
+    os.environ["HF_HUB_OFFLINE"] = "0"
+    os.environ["TRANSFORMERS_OFFLINE"] = "0"
+    embedder = SentenceTransformer("all-MiniLM-L6-v2", device="cpu")
 
 def get_collection():
     """Always returns the active collection instance."""

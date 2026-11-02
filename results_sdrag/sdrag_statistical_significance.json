@@ -1,0 +1,25 @@
+{
+    "sample_size_total": 50,
+    "sample_size_cross_ref": 32,
+    "method1_vs_baseline": {
+        "hr1_gain_pct": 72.0,
+        "hr1_paired_p_value": 3.0748327642612566e-29,
+        "mrr_paired_p_value": 1.9487484319566316e-25,
+        "statistically_significant_at_0_05": true
+    },
+    "full_sdrag_vs_baseline": {
+        "hr1_gain_pct": 72.0,
+        "hr1_paired_p_value": 3.0748327642612566e-29,
+        "mrr_paired_p_value": 1.9487484319566316e-25,
+        "xref_1hop_paired_p_value": 0.0,
+        "conflict_paired_p_value": 0.0,
+        "statistically_significant_at_0_05": true
+    },
+    "full_sdrag_vs_method1": {
+        "xref_1hop_gain_pct": 100.0,
+        "xref_1hop_paired_p_value": 0.0,
+        "conflict_gain_pct": 64.0,
+        "conflict_paired_p_value": 1.0259256941918179e-20,
+        "statistically_significant_at_0_05": true
+    }
+}

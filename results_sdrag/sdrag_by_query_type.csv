@@ -1,0 +1,16 @@
+system,query_type,queries,hr_at_1,hr_at_3,mrr,modality_acc,xref_acc,conflict_acc
+baseline,Compound_Statutory,21,0.2857142857142857,0.42857142857142855,0.34126666666666666,0.0,0.14285714285714285,0.0
+baseline,Conflict_Resolution,11,0.09090909090909091,0.36363636363636365,0.21211818181818182,0.0,0.09090909090909091,0.0
+baseline,Negative_Stress,4,0.0,0.5,0.25,0.0,1.0,0.0
+baseline,Paraphrased_Stress,2,0.0,0.0,0.0,0.0,1.0,0.0
+baseline,Standard_Deontic,12,0.5833333333333334,0.6666666666666666,0.6111083333333334,0.0,1.0,0.0
+method1,Compound_Statutory,21,1.0,1.0,1.0,1.0,0.23809523809523808,0.0
+method1,Conflict_Resolution,11,1.0,1.0,1.0,1.0,0.36363636363636365,0.0
+method1,Negative_Stress,4,1.0,1.0,1.0,1.0,1.0,1.0
+method1,Paraphrased_Stress,2,1.0,1.0,1.0,1.0,1.0,1.0
+method1,Standard_Deontic,12,1.0,1.0,1.0,1.0,1.0,1.0
+full_sdrag,Compound_Statutory,21,1.0,1.0,1.0,1.0,1.0,1.0
+full_sdrag,Conflict_Resolution,11,1.0,1.0,1.0,1.0,1.0,1.0
+full_sdrag,Negative_Stress,4,1.0,1.0,1.0,1.0,1.0,1.0
+full_sdrag,Paraphrased_Stress,2,1.0,1.0,1.0,1.0,1.0,1.0
+full_sdrag,Standard_Deontic,12,1.0,1.0,1.0,1.0,1.0,1.0

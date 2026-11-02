@@ -1,0 +1,4 @@
+system,total_queries,hr_at_1,hr_at_3,mrr,modality_accuracy,cross_ref_accuracy,strict_1hop_xref_accuracy,conflict_engine_accuracy,mean_latency_s
+baseline,50,0.28,0.46,0.3567,0.0,0.44,0.0,0.0,0.0121
+method1,50,1.0,1.0,1.0,1.0,0.54,0.0,0.36,0.0121
+full_sdrag,50,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.0222

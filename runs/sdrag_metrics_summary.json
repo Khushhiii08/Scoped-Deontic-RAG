@@ -1,0 +1,78 @@
+{
+    "Total_Queries": 50,
+    "HR_At_1": "100.0%",
+    "HR_At_3": "100.0%",
+    "MRR": 1.0,
+    "Deontic_Modality_Accuracy": "100.0%",
+    "Strict_1Hop_Graph_Accuracy": "100.0% (32/32)",
+    "Conflict_Engine_Accuracy": "100.0%",
+    "Mean_Latency_ms": 22.17,
+    "Ablation_Comparison": {
+        "baseline": {
+            "Total_Queries": 50,
+            "HR_At_1": "28.0%",
+            "HR_At_3": "46.0%",
+            "MRR": 0.3567,
+            "Deontic_Modality_Accuracy": "0.0%",
+            "Cross_Reference_Accuracy_All": "44.0%",
+            "Strict_1Hop_Graph_Accuracy": "0.0% (0/32)",
+            "Conflict_Engine_Accuracy": "0.0%",
+            "Mean_Latency_ms": 12.1
+        },
+        "method1_scoped_deontic": {
+            "Total_Queries": 50,
+            "HR_At_1": "100.0%",
+            "HR_At_3": "100.0%",
+            "MRR": 1.0,
+            "Deontic_Modality_Accuracy": "100.0%",
+            "Cross_Reference_Accuracy_All": "54.0%",
+            "Strict_1Hop_Graph_Accuracy": "0.0% (0/32)",
+            "Conflict_Engine_Accuracy": "36.0%",
+            "Mean_Latency_ms": 12.05
+        },
+        "full_sdrag_method1_plus_method2": {
+            "Total_Queries": 50,
+            "HR_At_1": "100.0%",
+            "HR_At_3": "100.0%",
+            "MRR": 1.0,
+            "Deontic_Modality_Accuracy": "100.0%",
+            "Cross_Reference_Accuracy_All": "100.0%",
+            "Strict_1Hop_Graph_Accuracy": "100.0% (32/32)",
+            "Conflict_Engine_Accuracy": "100.0%",
+            "Mean_Latency_ms": 22.17
+        }
+    },
+    "Method1_Modality_Breakdown": {
+        "Condition": {
+            "count": 11,
+            "hr_at_1": "100.0%",
+            "modality_extraction_acc": "100.0%"
+        },
+        "Obligation": {
+            "count": 20,
+            "hr_at_1": "100.0%",
+            "modality_extraction_acc": "100.0%"
+        },
+        "Permission": {
+            "count": 11,
+            "hr_at_1": "100.0%",
+            "modality_extraction_acc": "100.0%"
+        },
+        "Prohibition": {
+            "count": 8,
+            "hr_at_1": "100.0%",
+            "modality_extraction_acc": "100.0%"
+        }
+    },
+    "Method2_Conflict_State_Distribution": {
+        "OBLIGATION_QUALIFIED_BY_EXCEPTION": 19,
+        "STANDALONE_PROHIBITION": 7,
+        "PERMISSION_BOUNDED_BY_CONSTRAINT": 4,
+        "PROHIBITION_CARVEOUT_BY_EXCEPTION": 4,
+        "STANDALONE_CONDITION": 4,
+        "STANDALONE_OBLIGATION": 4,
+        "CONDITIONAL_DEPENDENCY_RESOLVED": 3,
+        "STANDALONE_PERMISSION": 3,
+        "SUPPLEMENTARY_DEFINITION_LINKED": 2
+    }
+}

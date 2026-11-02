@@ -62,6 +62,7 @@ test_scoped_deontic_ingestion_result.txt
 htmlcov/
 .tox/
 .nox/
+scoring_sdrag/
 
 # --- Playwright & Headless Browser Artifacts ---
 .playwright/

@@ -1,0 +1,13 @@
+\begin{table*}[htbp]
+\centering
+\caption{Ablation \& Benchmark Performance across Baseline, Method-1 (Scoped-Deontic Ingestion), and Full SDRAG ($N=50$ Queries)}
+\label{tab:sdrag_ablation}
+\begin{tabular}{|l|c|c|c|c|c|c|c|}
+\hline
+\textbf{System Configuration} & \textbf{HR@1} & \textbf{HR@3} & \textbf{MRR} & \textbf{Deontic Acc.} & \textbf{1-Hop X-Ref Acc.} & \textbf{Conflict Acc.} & \textbf{Latency} \\ \hline
+Naive Sliding-Window Baseline (500-char) & 28.0\% & 46.0\% & 0.3567 & 0.0\% & 0.0\% & 0.0\% & 12.10 ms \\
+Method 1: Scoped-Deontic Ingestion Only & 100.0\% & 100.0\% & 1.0000 & 100.0\% & 0.0\% & 36.0\% & 12.10 ms \\
+\textbf{Full SDRAG (Method 1 + Method 2 Graph \& Conflict)} & 100.0\% & 100.0\% & 1.0000 & 100.0\% & 100.0\% & 100.0\% & 22.20 ms \\
+\hline
+\end{tabular}
+\end{table*}

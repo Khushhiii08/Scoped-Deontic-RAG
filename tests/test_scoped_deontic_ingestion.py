@@ -1,7 +1,11 @@
 """
 Standalone Scoped-Deontic RAG Evaluation Suite
-Tests: Chunking / Segmentation, Deontic Modality Tagging, 
-Cross-Reference Resolution, and ChromaDB Ingestion.
+Tests:
+  - Test 1: Clause Splitting & Boundary Integrity (Method 1)
+  - Test 2: Deontic Modality Tagging & Cross-Reference Extraction F1 Benchmark (Method 1 & 2)
+  - Test 3: ChromaDB Scoped Ingestion & Vector Metadata Integrity (Method 1)
+  - Test 4: Adaptive Lookahead Heading Stitching Verification (Method 1)
+  - Test 5: Deterministic 1-Hop Cross-Reference Graph Resolution & Conflict Engine (Method 2)
 """
 
 import sys
@@ -10,17 +14,36 @@ import shutil
 import tempfile
 import numpy as np
 
+os.environ["ANONYMIZED_TELEMETRY"] = "False"
+os.environ["CHROMA_TELEMETRY"] = "False"
+os.environ.setdefault("HF_HUB_OFFLINE", "1")
+os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
+
 # Ensure root modules can be imported
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from src.ingestion.parser import (
     split_into_clauses,
+    stitch_lookahead_headings,
     extract_deontic_metadata,
     extract_cross_references,
-    process_legal_clause
+    process_legal_clause,
+)
+from src.retrieval.retriever import (
+    resolve_cross_reference_in_collection,
+    resolve_deontic_conflict,
 )
 import chromadb
 from sentence_transformers import SentenceTransformer
+
+
+def get_test_embedder():
+    try:
+        return SentenceTransformer("all-MiniLM-L6-v2", device="cpu", local_files_only=True)
+    except Exception:
+        os.environ["HF_HUB_OFFLINE"] = "0"
+        os.environ["TRANSFORMERS_OFFLINE"] = "0"
+        return SentenceTransformer("all-MiniLM-L6-v2", device="cpu")
 
 
 # ---------------------------------------------------------------------------
@@ -64,6 +87,26 @@ BENCHMARK_CORPUS = [
         "expected_modalities": {"OBLIGATION", "PROHIBITION", "PERMISSION"},
         "expected_links": ["Linked Node: 12"]
     }
+]
+
+# Auxiliary 1-Hop Target Exception Nodes for Method-2 Graph & Conflict Testing
+LINKED_EXCEPTION_CORPUS = [
+    {
+        "clause_text": "Section 18.2: Event of Default and Cure Exception. Failure to cure a Security Deposit shortfall within five (5) days shall entitle OYO to terminate this Agreement immediately, unless a force majeure extension is granted in writing.",
+        "parent_heading": "Audits & Penalties",
+    },
+    {
+        "clause_text": "Section 14.1: Staff Room Tariff Schedule. Operator may allocate up to two (2) rooms for staff occupancy provided that a flat monthly fee is remitted in advance and rooms are blocked from public inventory.",
+        "parent_heading": "Operations",
+    },
+    {
+        "clause_text": "Section 9.0: Force Majeure and Non-Refundable Peak Bookings. Pre-booking refunds shall not apply where check-in denial results from government emergency orders or guest misconduct.",
+        "parent_heading": "Guest Services",
+    },
+    {
+        "clause_text": "Section 12: Bona Fide Expense Reimbursement Policy. Hospitality and promotional expenses under USD 100 must be pre-approved in writing and supported by itemized receipts.",
+        "parent_heading": "Regulatory Compliance",
+    },
 ]
 
 
@@ -114,18 +157,15 @@ def run_deontic_and_crossref_benchmark():
         words = len(raw_text.split())
         token_lengths.append(words)
         
-        # Test functions
         deontic_meta = extract_deontic_metadata(raw_text)
         links = extract_cross_references(raw_text)
         
-        # Determine detected classes
         detected = set()
         if deontic_meta["Obligations"]: detected.add("OBLIGATION")
         if deontic_meta["Prohibitions"]: detected.add("PROHIBITION")
         if deontic_meta["Permissions"]: detected.add("PERMISSION")
         if deontic_meta["Conditions"]: detected.add("CONDITION")
         
-        # Calculate precision / recall counts
         expected = item["expected_modalities"]
         for cat in categories:
             if cat in expected and cat in detected:
@@ -135,7 +175,6 @@ def run_deontic_and_crossref_benchmark():
             elif cat in expected and cat not in detected:
                 stats[cat]["fn"] += 1
                 
-        # Calculate link accuracy
         expected_links = item["expected_links"]
         xref_total_expected += len(expected_links)
         for el in expected_links:
@@ -146,7 +185,6 @@ def run_deontic_and_crossref_benchmark():
         links_summary = ", ".join(links) if links else "None"
         print(f"Clause {idx:<6} | {words:<12} | {deontic_summary:<30} | {links_summary}")
         
-    # --- Performance Metrics Output ---
     print("\n" + "-" * 70)
     print(f"{'Deontic Category':<15} | {'Precision':<12} | {'Recall':<12} | {'F1-Score':<12}")
     print("-" * 70)
@@ -182,13 +220,12 @@ def run_ingestion_and_indexing_pipeline():
     try:
         client = chromadb.EphemeralClient()
         collection = client.create_collection(name="test_legal_clauses")
-        embedder = SentenceTransformer("all-MiniLM-L6-v2")
+        embedder = get_test_embedder()
         
         indexed_count = 0
         for item in BENCHMARK_CORPUS:
             payload = process_legal_clause(item["clause_text"], parent_heading=item["parent_heading"])
             
-            # Verify payload schema
             assert "id" in payload
             assert "enriched_text" in payload
             assert "metadata" in payload
@@ -208,7 +245,6 @@ def run_ingestion_and_indexing_pipeline():
         print(f"[*] Processed and indexed {indexed_count} structured legal chunks.")
         print(f"[*] ChromaDB reported record count: {stored}")
         
-        # Verify vector retrieval on primary duty
         query = "What happens if an operator denies or obstructs an audit?"
         q_vec = embedder.encode(query).tolist()
         result = collection.query(query_embeddings=[q_vec], n_results=1)
@@ -229,15 +265,76 @@ def run_ingestion_and_indexing_pipeline():
         shutil.rmtree(temp_dir, ignore_errors=True)
 
 
+def run_lookahead_heading_stitching_test():
+    print_header("Test 4: Adaptive Lookahead Heading Stitching (Method 1)")
+    raw_blocks = [
+        "Section 1. Membership",
+        "1.1. Your membership will continue month-to-month until terminated by you.",
+        "Section 2. Promotional Offers",
+        "2.1. Promotional eligibility is determined by the Company at its sole discretion.",
+    ]
+    stitched = stitch_lookahead_headings(raw_blocks, max_heading_len=60)
+    print(f"[*] Raw fragmented blocks: {len(raw_blocks)} -> Stitched operative clauses: {len(stitched)}")
+    for idx, s in enumerate(stitched, 1):
+        print(f"    Stitched [{idx}]: {s}")
+    assert len(stitched) == 2, "Lookahead buffer should stitch 2 orphaned headings into 2 operative clauses."
+    assert "[Section 1. Membership]" in stitched[0]
+    assert "[Section 2. Promotional Offers]" in stitched[1]
+    print("\n[OBSERVATION] Lookahead Heading Stitching Buffer: PASSED (0% orphaned headings).")
+
+
+def run_1hop_graph_and_conflict_engine_test():
+    print_header("Test 5: Deterministic 1-Hop Graph Resolution & Conflict Engine (Method 2)")
+    client = chromadb.EphemeralClient()
+    collection = client.create_collection(name="test_graph_conflict")
+    embedder = get_test_embedder()
+
+    all_items = BENCHMARK_CORPUS + LINKED_EXCEPTION_CORPUS
+    for item in all_items:
+        payload = process_legal_clause(item["clause_text"], parent_heading=item["parent_heading"])
+        vec = embedder.encode(payload["enriched_text"]).tolist()
+        collection.add(
+            ids=[payload["id"]],
+            embeddings=[vec],
+            documents=[payload["enriched_text"]],
+            metadatas=[payload["metadata"]],
+        )
+
+    resolved_count = 0
+    expected_xref_clauses = [it for it in BENCHMARK_CORPUS if it["expected_links"]]
+    for item in expected_xref_clauses:
+        primary_payload = process_legal_clause(item["clause_text"], parent_heading=item["parent_heading"])
+        p_meta = primary_payload["metadata"]
+        target_str = p_meta["linked_nodes"].replace("Linked Node: ", "").strip()
+        linked_doc, linked_meta = resolve_cross_reference_in_collection(
+            collection, target_str, parent_scope=p_meta["parent_scope"]
+        )
+        assert linked_doc is not None, f"Failed to resolve 1-hop target {target_str}"
+        conflict = resolve_deontic_conflict(p_meta, linked_meta)
+        assert conflict["conflict_detected"] is True
+        resolved_count += 1
+        print(
+            f"    [1-Hop Resolved] Primary Sec {p_meta['section_id']:<4} -> Target Sec {target_str:<4} | "
+            f"State: {conflict['resolution_state']} | Polarity: {conflict['resolved_polarity']}"
+        )
+
+    print(
+        f"\n[OBSERVATION] 1-Hop Graph & Conflict Resolution: PASSED "
+        f"({resolved_count}/{len(expected_xref_clauses)} statutory edges & conflicts resolved)."
+    )
+
+
 if __name__ == "__main__":
     print("\n" + "#" * 70)
-    print("  RUNNING SCOPED-DEONTIC INGESTION & CHUNKING TEST SUITE")
+    print("  RUNNING SCOPED-DEONTIC INGESTION, GRAPH & CONFLICT TEST SUITE")
     print("#" * 70)
     
-    seg_passed = run_segmentation_tests()
+    run_segmentation_tests()
     run_deontic_and_crossref_benchmark()
     run_ingestion_and_indexing_pipeline()
+    run_lookahead_heading_stitching_test()
+    run_1hop_graph_and_conflict_engine_test()
     
     print_header("FINAL VERIFICATION SUMMARY")
-    print("All ingestion tests completed without errors.")
+    print("All Method-1 and Method-2 unit & integration tests completed without errors.")
     print("Ready to paste directly into your research paper methodology and results tables.\n")
