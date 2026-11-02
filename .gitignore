@@ -50,6 +50,18 @@ test_scoped_deontic_ingestion_result.txt
 *.tmp
 *.temp
 
+# --- Local Data, Datasets & Raw PDFs ---
+data/raw/
+data/processed/
+data/eval_sheets/
+
+# --- Evaluation Runs, Traces & Scoring Workbooks ---
+runs/
+scoring_sdrag/
+results_sdrag/
+*.xlsx
+*.csv
+
 # --- Jupyter Notebook Checkpoints ---
 .ipynb_checkpoints
 */.ipynb_checkpoints/*
